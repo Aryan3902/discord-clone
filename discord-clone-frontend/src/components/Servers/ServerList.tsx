@@ -1,27 +1,13 @@
-import reactIcon from "@/assets/react.svg";
-import viteIcon from "@/assets/vite.svg";
 import ServerIcon from "./ServerIcon";
-
-const servers = [
-  {
-    id: 1,
-    name: "React",
-    icon: reactIcon,
-    mentions: 10,
-  },
-  {
-    id: 2,
-    name: "Vite Server",
-    icon: viteIcon,
-    mentions: 0,
-  },
-];
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const ServerList = () => {
+  const servers = useSelector((state: RootState) => state.server.servers);
   return (
-    <div className="flex flex-col gap-4 bg-zinc-900 min-h-screen p-2">
+    <div className="flex flex-col gap-2 bg-zinc-900 min-h-screen pt-2">
       {servers.map((server) => (
-        <ServerIcon serverDetails={server} />
+        <ServerIcon serverDetails={server} key={server.id} />
       ))}
     </div>
   );
