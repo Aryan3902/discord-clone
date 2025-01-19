@@ -7,4 +7,8 @@ interface ChannelDetails {
   category: string | null;
 }
 
-export type { ChannelDetails };
+interface CategoryChannelDetails extends ChannelDetails {
+  channels?: ChannelDetails[];
+}
+
+export type { ChannelDetails, CategoryChannelDetails };

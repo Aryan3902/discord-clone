@@ -5,6 +5,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface ServerState {
   servers: ServerDetails[];
   selectedServerId: number | null;
+  selectedChannelIds: Record<number, number | null>;
   loading: boolean;
   error: string | null;
 }
@@ -12,6 +13,7 @@ interface ServerState {
 const initialState: ServerState = {
   servers: [],
   selectedServerId: null,
+  selectedChannelIds: {},
   error: null,
   loading: false,
 };
@@ -23,11 +25,19 @@ const serverSlice = createSlice({
     selectServer: (state, action: PayloadAction<number>) => {
       state.selectedServerId = action.payload;
     },
+    selectChannel: (
+      state,
+      action: PayloadAction<{ serverId: number; channelId: number }>
+    ) => {
+      state.selectedChannelIds[action.payload.serverId] =
+        action.payload.channelId;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchServersAsync.fulfilled, (state, action) => {
         state.servers = action.payload;
+        state.selectedServerId = action.payload[0].id;
         state.loading = false;
       })
       .addCase(fetchServersAsync.pending, (state) => {
@@ -63,5 +73,5 @@ export const fetchServersAsync = createAsyncThunk(
   }
 );
 
-export const { selectServer } = serverSlice.actions;
+export const { selectServer, selectChannel } = serverSlice.actions;
 export default serverSlice.reducer;

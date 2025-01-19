@@ -22,7 +22,7 @@ export const servers: ServerDetails[] = [
       {
         id: 2,
         name: "Announcements",
-        isCategory: true,
+        isCategory: false,
         category: "General",
         mentions: 0,
         unread: false,
@@ -32,8 +32,8 @@ export const servers: ServerDetails[] = [
         name: "help",
         isCategory: false,
         category: "General",
-        mentions: 0,
-        unread: false,
+        mentions: 10,
+        unread: true,
       },
       {
         id: 4,
@@ -56,7 +56,7 @@ export const servers: ServerDetails[] = [
         name: "components",
         isCategory: false,
         category: "Development",
-        mentions: 0,
+        mentions: 3,
         unread: false,
       },
       {

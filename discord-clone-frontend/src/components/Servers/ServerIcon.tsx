@@ -5,6 +5,7 @@ import { selectServer } from "@/redux/slices/serverSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn, getNameInitials } from "@/lib/utils";
 import { RootState } from "@/redux/store";
+import MentionBadge from "../shared/MentionBadge";
 
 const ServerIcon = ({ serverDetails }: { serverDetails: ServerDetails }) => {
   const { selectedServerId } = useSelector((state: RootState) => state.server);
@@ -31,9 +32,10 @@ const ServerIcon = ({ serverDetails }: { serverDetails: ServerDetails }) => {
         <AvatarFallback>{getNameInitials(serverDetails.name)}</AvatarFallback>
       </Avatar>
       {serverDetails.mentions > 0 && (
-        <div className="absolute bottom-0 right-1 p-0.5 px-1.5 text-xs text-white font-extrabold bg-red-500 border-4 border-zinc-900 rounded-full flex items-center justify-center">
-          {serverDetails.mentions}
-        </div>
+        <MentionBadge
+          mentions={serverDetails.mentions}
+          className="absolute bottom-0 right-1 border-4 border-zinc-900"
+        />
       )}
       <div className="absolute left-0 h-full top-0 bottom-0 flex items-center justify-center">
         <div
