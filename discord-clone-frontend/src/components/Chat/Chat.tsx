@@ -1,4 +1,4 @@
-import React, { useOptimistic } from "react";
+import { startTransition, useOptimistic } from "react";
 import { Chats } from "@/constants";
 import { RootState } from "@/redux/store";
 import { ChatInterface } from "@/types/chat";
@@ -20,7 +20,8 @@ const Chat = () => {
     messages,
     chatListReducer
   );
-
+  console.log(optimisticMessages, messages);
+  console.log("End");
   useEffect(() => {
     async function fetchMessages() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -44,7 +45,9 @@ const Chat = () => {
       readBy: [],
       type: "text" as const,
     };
-    setOptimisticMessages({ type: ADD_MESSAGE, payload: newMessage });
+    startTransition(() => {
+      setOptimisticMessages({ type: ADD_MESSAGE, payload: newMessage });
+    });
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setMessages((messages) => [...messages, newMessage]);
   }
