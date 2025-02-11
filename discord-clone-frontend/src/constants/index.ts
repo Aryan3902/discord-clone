@@ -1,5 +1,6 @@
 import reactIcon from "@/assets/react.svg";
 import viteIcon from "@/assets/vite.svg";
+import { ChatInterface } from "@/types/chat";
 import { ServerDetails } from "@/types/server";
 
 export const servers: ServerDetails[] = [
@@ -93,7 +94,7 @@ export const servers: ServerDetails[] = [
     unread: false,
     channels: [
       {
-        id: 1,
+        id: 10101,
         name: "General",
         isCategory: false,
         category: null,
@@ -101,5 +102,56 @@ export const servers: ServerDetails[] = [
         unread: false,
       },
     ],
+  },
+];
+
+export const Chats: ChatInterface[] = [
+  {
+    channelId: 1,
+    authorId: 1,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
+  },
+  {
+    channelId: 1,
+    authorId: 2,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
+  },
+  {
+    channelId: 1,
+    authorId: 3,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
+  },
+  {
+    channelId: 1,
+    authorId: 4,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
+  },
+  {
+    channelId: 1,
+    authorId: 5,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
+  },
+  {
+    channelId: 1,
+    authorId: 6,
+    content: "Hello World",
+    createdAt: 1669888888,
+    readBy: [1, 2, 3],
+    type: "text",
   },
 ];

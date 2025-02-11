@@ -4,7 +4,7 @@ import { cn, groupIntoCategories } from "@/lib/utils";
 
 import { CategoryChannelDetails, ChannelDetails } from "@/types/channel";
 import { ChevronDown, ChevronRight, Hash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { selectChannel } from "@/redux/slices/serverSlice";
 import MentionBadge from "../shared/MentionBadge";
 
@@ -108,9 +108,21 @@ const ChannelList = () => {
   const currServer = useSelector((state: RootState) =>
     state.server.servers.find((x) => x.id === state.server.selectedServerId)
   );
+  console.log(currServer);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (currServer) {
+      dispatch(selectChannel({ serverId: currServer.id }));
+    }
+  }, [currServer, dispatch]);
+
   const selectedChannelId = useSelector(
-    (state: RootState) => state.server.selectedChannelIds[currServer?.id || 0]
+    (state: RootState) =>
+      state.server.selectedChannelIds[
+        currServer?.id ?? state.server.servers[0].id
+      ]
   );
+
   const channels = currServer?.channels;
   const groupedChannels = groupIntoCategories(channels || []);
 

@@ -1,4 +1,5 @@
 import { CategoryChannelDetails, ChannelDetails } from "@/types/channel";
+import { ServerDetails } from "@/types/server";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -46,4 +47,23 @@ export function groupIntoCategories(channels: ChannelDetails[]) {
     }
     return acc;
   }, [] as CategoryChannelDetails[]);
+}
+
+export function getSelectedChannelId(
+  selectedServerId: number | null,
+  selectedChannelIds: Record<number, number | null>,
+  servers: ServerDetails[]
+) {
+  if (!selectedServerId) {
+    if (servers.length > 0) return servers[0].channels[0].id;
+    return null;
+  }
+  if (!selectedChannelIds[selectedServerId]) {
+    return (
+      servers
+        .find((server) => server.id === selectedServerId)
+        ?.channels.find((channel) => channel.isCategory !== true)?.id ?? null
+    );
+  }
+  return selectedChannelIds[selectedServerId];
 }

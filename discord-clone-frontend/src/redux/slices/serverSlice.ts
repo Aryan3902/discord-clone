@@ -1,4 +1,5 @@
 import { getServers } from "@/api/getServers";
+import { getSelectedChannelId } from "@/lib/utils";
 import { ServerDetails } from "@/types/server";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -15,7 +16,7 @@ const initialState: ServerState = {
   selectedServerId: null,
   selectedChannelIds: {},
   error: null,
-  loading: false,
+  loading: true,
 };
 
 const serverSlice = createSlice({
@@ -27,10 +28,16 @@ const serverSlice = createSlice({
     },
     selectChannel: (
       state,
-      action: PayloadAction<{ serverId: number; channelId: number }>
+      action: PayloadAction<{ serverId: number; channelId?: number | null }>
     ) => {
-      state.selectedChannelIds[action.payload.serverId] =
-        action.payload.channelId;
+      let selectedChannelId = action.payload.channelId;
+      if (!selectedChannelId)
+        selectedChannelId = getSelectedChannelId(
+          action.payload.serverId,
+          state.selectedChannelIds,
+          state.servers
+        );
+      state.selectedChannelIds[action.payload.serverId] = selectedChannelId;
     },
   },
   extraReducers: (builder) => {
