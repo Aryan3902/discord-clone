@@ -4,7 +4,7 @@ import { ChatInterface } from "@/types/chat";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ChatList from "./ChatList";
-import MessageInput from "./MessageInput";
+import MessageInput from "./MessageInputBar/MessageInput";
 import chatListReducer from "@/reducers/Chat/chatListReducer";
 import { ADD_MESSAGE } from "@/constants/Actions/Chat/ChatList";
 import { selectSelectedChannelId } from "@/redux/selectors";

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import "./App.css";
-import ServerList from "@/components/Servers/ServerList";
+import ServerList from "@/features/Servers/components/ServerList";
 import { useAppDispatch } from "./redux/hooks";
 import { fetchServersAsync } from "./redux/slices/serverSlice";
 import { useSelector } from "react-redux";

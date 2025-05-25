@@ -4,7 +4,7 @@ import { selectServer } from "@/redux/slices/serverSlice";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn, getNameInitials } from "@/lib/utils";
-import MentionBadge from "../MentionBadge";
+import MentionBadge from "../../../components/MentionBadge";
 import { selectCurrentServer } from "@/redux/selectors";
 
 const ServerIcon = ({ serverDetails }: { serverDetails: ServerDetails }) => {
