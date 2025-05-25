@@ -6,15 +6,17 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface ServerState {
   servers: ServerDetails[];
   selectedServerId: number | null;
-  selectedChannelIds: Record<number, number | null>;
+  selectedChannelIds: SelectedChannelIdsInterface;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: ServerState = {
-  servers: [],
-  selectedServerId: null,
-  selectedChannelIds: {},
+  servers: [], // Array of all servers the user has joined
+  selectedServerId: localStorage.getItem("lastSelectedServerId")
+    ? Number(localStorage.getItem("lastSelectedServerId"))
+    : null, // The server the user has selected
+  selectedChannelIds: {}, // Map of channels the user has selected for each server
   error: null,
   loading: true,
 };
@@ -25,12 +27,14 @@ const serverSlice = createSlice({
   reducers: {
     selectServer: (state, action: PayloadAction<number>) => {
       state.selectedServerId = action.payload;
+      localStorage.setItem("lastSelectedServerId", action.payload.toString());
     },
     selectChannel: (
       state,
       action: PayloadAction<{ serverId: number; channelId?: number | null }>
     ) => {
       let selectedChannelId = action.payload.channelId;
+      // In case the user is visiting a channel for the first time
       if (!selectedChannelId)
         selectedChannelId = getSelectedChannelId(
           action.payload.serverId,

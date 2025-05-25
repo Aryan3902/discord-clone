@@ -5,9 +5,9 @@ import { useAppDispatch } from "./redux/hooks";
 import { fetchServersAsync } from "./redux/slices/serverSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
-import Chat from "./components/Chat/Chat";
+import Chat from "./features/Chat/components/Chat";
 
-const ChannelList = lazy(() => import("./components/Channels/ChannelList"));
+const ChannelList = lazy(() => import("./features/Channels/ChannelList"));
 
 const AppFallback = () => {
   console.log("App Fallback");

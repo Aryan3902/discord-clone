@@ -2,6 +2,7 @@ import reactIcon from "@/assets/react.svg";
 import viteIcon from "@/assets/vite.svg";
 import { ChatInterface } from "@/types/chat";
 import { ServerDetails } from "@/types/server";
+import { UserInterface } from "@/types/user";
 
 export const servers: ServerDetails[] = [
   {
@@ -153,5 +154,18 @@ export const Chats: ChatInterface[] = [
     createdAt: 1669888888,
     readBy: [1, 2, 3],
     type: "text",
+  },
+];
+
+export const users: UserInterface[] = [
+  {
+    id: 1,
+    username: "React",
+    avatar: "null",
+  },
+  {
+    id: 2,
+    username: "Vite",
+    avatar: "null",
   },
 ];

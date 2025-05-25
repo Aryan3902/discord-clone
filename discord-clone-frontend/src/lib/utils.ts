@@ -49,6 +49,16 @@ export function groupIntoCategories(channels: ChannelDetails[]) {
   }, [] as CategoryChannelDetails[]);
 }
 
+/**
+ * Retrieves the selected channel ID based on the selected server ID, selected channel IDs, and server details.
+ * If no server is selected, it returns the ID of the first channel of the first server.
+ * If the selected server has no channel selected, it returns the ID of the first non-category channel of the selected server.
+ * Otherwise, it returns the ID of the selected channel for the selected server.
+ * @param selectedServerId The ID of the selected server.
+ * @param selectedChannelIds An object containing selected channel IDs for each server.
+ * @param servers An array of server details.
+ * @returns The selected channel ID.
+ */
 export function getSelectedChannelId(
   selectedServerId: number | null,
   selectedChannelIds: Record<number, number | null>,
