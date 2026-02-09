@@ -1,21 +1,16 @@
-import { startTransition, useOptimistic } from "react";
+
 import { Chats } from "@/constants";
 import { ChatInterface } from "@/types/chat";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ChatList from "./ChatList";
 import MessageInput from "./MessageInputBar/MessageInput";
-import chatListReducer from "@/reducers/Chat/chatListReducer";
-import { ADD_MESSAGE } from "@/constants/Actions/Chat/ChatList";
 import { selectSelectedChannelId } from "@/redux/selectors";
 
 const Chat = () => {
   const currSelectedChannel = useSelector(selectSelectedChannelId);
   const [messages, setMessages] = useState<ChatInterface[]>([]);
-  const [optimisticMessages, setOptimisticMessages] = useOptimistic(
-    messages,
-    chatListReducer
-  );
+
   useEffect(() => {
     async function fetchMessages() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -39,16 +34,12 @@ const Chat = () => {
       readBy: [],
       type: "text" as const,
     };
-    startTransition(() => {
-      setOptimisticMessages({ type: ADD_MESSAGE, payload: newMessage });
-    });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     setMessages((prevMessages) => [...prevMessages, newMessage]);
   }
 
   return (
     <div className="bg-zinc-700 h-full flex flex-col relative">
-      <ChatList messages={optimisticMessages} />
+      <ChatList messages={messages} />
       <MessageInput sendMessage={sendMessage} />
     </div>
   );
