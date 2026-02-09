@@ -1,8 +1,52 @@
 import reactIcon from "@/assets/react.svg";
 import viteIcon from "@/assets/vite.svg";
 import { ChatInterface } from "@/types/chat";
+import { RoleInterface } from "@/types/roles";
 import { ServerDetails } from "@/types/server";
 import { UserInterface } from "@/types/user";
+
+export const roles: RoleInterface[] = [
+  {
+    id: 1,
+    name: "Admin",
+    color: "red",
+    serverId: 1,
+  },
+  {
+    id: 2,
+    name: "Moderator",
+    color: "blue",
+    serverId: 1,
+  },
+  {
+    id: 3,
+    name: "Member",
+    color: "green",
+    serverId: 1,
+  },
+]
+
+
+export const users: UserInterface[] = [
+  {
+    id: 1,
+    username: "React",
+    avatar: "null",
+    roles: [roles[0]],
+  },
+  {
+    id: 2,
+    username: "Vite",
+    avatar: "null",
+    roles: [roles[1]],
+  },
+  {
+    id: 3,
+    username: "Member",
+    avatar: "null",
+    roles: [roles[2]],
+  }
+];
 
 export const servers: ServerDetails[] = [
   {
@@ -86,6 +130,7 @@ export const servers: ServerDetails[] = [
         unread: false,
       },
     ],
+    users: [users[0], users[1], users[2]],
   },
   {
     id: 2,
@@ -103,6 +148,7 @@ export const servers: ServerDetails[] = [
         unread: false,
       },
     ],
+    users: [users[0], users[1], users[2]],
   },
 ];
 
@@ -154,18 +200,5 @@ export const Chats: ChatInterface[] = [
     createdAt: 1669888888,
     readBy: [1, 2, 3],
     type: "text",
-  },
-];
-
-export const users: UserInterface[] = [
-  {
-    id: 1,
-    username: "React",
-    avatar: "null",
-  },
-  {
-    id: 2,
-    username: "Vite",
-    avatar: "null",
   },
 ];

@@ -1,5 +1,7 @@
 import { CategoryChannelDetails, ChannelDetails } from "@/types/channel";
+import { RoleInterface } from "@/types/roles";
 import { ServerDetails } from "@/types/server";
+import { UserInterface } from "@/types/user";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -49,6 +51,22 @@ export function groupIntoCategories(channels: ChannelDetails[]) {
   }, [] as CategoryChannelDetails[]);
 }
 
+export function groupIntoRoles(users: UserInterface[]) {
+  return users.reduce((acc, user) => {
+    if (!acc.find((x) => x.role.id === user.roles[0].id)) {
+      acc.push({
+        role: user.roles[0],
+        users: [user],
+      });
+    } else {
+      acc.find((x) => x.role.id === user.roles[0].id)?.users.push(user);
+    }
+    return acc;
+  }, [] as {
+    role: RoleInterface;
+    users: UserInterface[];
+  }[]);
+}
 /**
  * Retrieves the selected channel ID based on the selected server ID, selected channel IDs, and server details.
  * If no server is selected, it returns the ID of the first channel of the first server.

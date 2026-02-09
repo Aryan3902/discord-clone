@@ -8,6 +8,7 @@ import { RootState } from "./redux/store";
 import Chat from "./features/Chat/components/Chat";
 
 const ChannelList = lazy(() => import("./features/Channels/ChannelList"));
+const UsersList = lazy(() => import("./features/Users/UsersList"));
 
 const AppFallback = () => {
   console.log("App Fallback");
@@ -36,7 +37,11 @@ function App() {
           <div className="flex-1">
             <Chat />
           </div>
-          <div className="w-1/6">Users</div>
+          <div className="w-1/6">
+            <Suspense fallback={<div>Users List Loading</div>}>
+              <UsersList />
+            </Suspense>
+          </div>
         </div>
       )}
       {error && <div>Error: {error}</div>}

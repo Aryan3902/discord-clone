@@ -14,3 +14,11 @@ export const selectSelectedChannelId = createSelector(
   (selectedChannelIds, currServer) =>
     currServer ? selectedChannelIds[currServer.id] : null
 );
+
+export const selectCurrentServerUsers = createSelector(
+  [
+    (state: RootState) => state.server.servers,
+    (state: RootState) => state.server.selectedServerId,
+  ],
+  (servers, selectedServerId) => servers.find((x) => x.id === selectedServerId)?.users || []
+);
