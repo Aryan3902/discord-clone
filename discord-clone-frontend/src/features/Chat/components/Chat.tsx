@@ -28,7 +28,12 @@ const Chat = () => {
   async function sendMessage(message: string) {
     const newMessage = {
       channelId: currSelectedChannel!,
-      authorId: 1,
+      author: {
+        id: 1,
+        username: "John Doe",
+        avatar: "https://github.com/shadcn.png",
+        roles: [],
+      },
       content: message,
       createdAt: Date.now(),
       readBy: [],

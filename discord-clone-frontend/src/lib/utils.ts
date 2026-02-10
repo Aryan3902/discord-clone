@@ -95,3 +95,13 @@ export function getSelectedChannelId(
   }
   return selectedChannelIds[selectedServerId];
 }
+
+export const formatDate = (date: number) => {
+  return new Date(date).toLocaleString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
