@@ -16,9 +16,17 @@ let refreshTokens: string[] = [];
 const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access_secret_key';
 const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET || 'refresh_secret_key';
 
+const generateAccessToken = (userId: string): string => {
+  return jwt.sign({ userId }, ACCESS_SECRET, { expiresIn: '15m' });
+}
+
+const generateRefreshToken = (userId: string): string => {
+  return jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: '7d' });
+}
+
 const generateTokens = (userId: string) => {
-  const accessToken = jwt.sign({ userId }, ACCESS_SECRET, { expiresIn: '15m' });
-  const refreshToken = jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: '7d' });
+  const accessToken = generateAccessToken(userId);
+  const refreshToken = generateRefreshToken(userId);
   return { accessToken, refreshToken };
 }
 
@@ -83,4 +91,30 @@ export const logout = async (req: Request, res: Response) => {
     maxAge: 0,
   });
   res.json({ message: 'Logged out successfully' });
+}
+
+export const refresh = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const isRefreshTokenValid = refreshTokens.includes(refreshToken);
+  if (!isRefreshTokenValid) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+  if (typeof decoded === 'string') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  const userId = decoded.userId;
+  const user = users.find(user => user.id === userId);
+  if (!user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const newAccessToken = generateAccessToken(user.id);
+  res.json({ accessToken: newAccessToken });
 }
