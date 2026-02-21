@@ -17,6 +17,9 @@ importers:
 
   apps/discord-clone-backend:
     dependencies:
+      '@discord-clone/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
