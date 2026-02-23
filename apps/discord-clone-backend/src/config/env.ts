@@ -13,7 +13,7 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().url(),
 
-  WORKER_ID: z.number().int().min(0).max(1023),
+  WORKER_ID: z.coerce.number().int().min(0).max(1023),
 
   ACCESS_TOKEN_SECRET: z.string().min(32).max(32),
   REFRESH_TOKEN_SECRET: z.string().min(32).max(32),
