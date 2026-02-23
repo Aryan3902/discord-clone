@@ -1,35 +1,23 @@
 // src/controllers/authController.ts
 import { type Request, type Response } from "express";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { UserRegisterationSchema } from "@discord-clone/shared-types";
-import type { User } from "../types/user.js";
+import {
+  UserRegisterationSchema,
+  type UserDBType,
+} from "@discord-clone/shared-types";
+import {
+  generateAccessToken,
+  generateTokens,
+  verifyAccessToken,
+} from "../../../services/AuthService.js";
 
 // --- Mock Data ---
-const users: User[] = [
+const users: UserDBType[] = [
   { id: "1", username: "testuser", passwordHash: "password123" },
 ];
 
 // In production, store these in a DB table (e.g., "refresh_tokens")
 let refreshTokens: string[] = [];
-
-// --- Constants ---
-const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET || "access_secret_key";
-const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh_secret_key";
-
-const generateAccessToken = (userId: string): string => {
-  return jwt.sign({ userId }, ACCESS_SECRET, { expiresIn: "15m" });
-};
-
-const generateRefreshToken = (userId: string): string => {
-  return jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: "7d" });
-};
-
-const generateTokens = (userId: string) => {
-  const accessToken = generateAccessToken(userId);
-  const refreshToken = generateRefreshToken(userId);
-  return { accessToken, refreshToken };
-};
 
 export const register = async (req: Request, res: Response) => {
   const validatedData = UserRegisterationSchema.safeParse(req.body);
@@ -109,7 +97,7 @@ export const refresh = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const decoded = jwt.verify(refreshToken, REFRESH_SECRET);
+  const decoded = verifyAccessToken(refreshToken);
   if (typeof decoded === "string") {
     return res.status(401).json({ error: "Unauthorized" });
   }

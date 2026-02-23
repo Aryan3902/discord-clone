@@ -1,5 +1,5 @@
 import express, { type Request, type Response } from "express";
-import authRoutes from "./routes/authRoutes.js";
+import authRoutes from "./api/v1/auth/routes.js";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env.js";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -11,7 +11,7 @@ const db = drizzle({ connection: env.DATABASE_URL, casing: "snake_case" });
 app.use(express.json());
 app.use(cookieParser()); // Add this middleware BEFORE routes
 
-app.use("/api/auth", authRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, TypeScript + Express!");
