@@ -1,3 +1,1 @@
-export * from "./zod-schema";
-
-export const TEST_MESSAGE = "Hello, world!";
+export * from "./zod-schema/index.js";
