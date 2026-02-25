@@ -12,6 +12,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
 
   DATABASE_URL: z.string().url(),
+  REDIS_URL: z.string().url(),
 
   WORKER_ID: z.coerce.number().int().min(0).max(1023),
 

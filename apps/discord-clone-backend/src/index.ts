@@ -3,6 +3,7 @@ import authRoutes from "./api/v1/auth/routes.js";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env.js";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { connectRedis } from "./config/redis.js";
 
 const app = express();
 
@@ -11,6 +12,7 @@ const db = drizzle({ connection: env.DATABASE_URL, casing: "snake_case" });
 app.use(express.json());
 app.use(cookieParser()); // Add this middleware BEFORE routes
 
+connectRedis();
 app.use("/api/v1/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
