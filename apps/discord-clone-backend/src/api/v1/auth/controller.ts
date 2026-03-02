@@ -1,23 +1,23 @@
 // src/controllers/authController.ts
 import { type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import {
+  UserLoginSchema,
   UserRegisterationSchema,
   type UserDBType,
 } from "@discord-clone/shared-types";
 import {
   generateAccessToken,
   generateTokens,
-  verifyAccessToken,
 } from "../../../services/AuthService.js";
+import redisClient from "../../../config/redis.js";
+import { env } from "../../../config/env.js";
 
 // --- Mock Data ---
 const users: UserDBType[] = [
   { id: "1", username: "testuser", passwordHash: "password123" },
 ];
-
-// In production, store these in a DB table (e.g., "refresh_tokens")
-let refreshTokens: string[] = [];
 
 export const register = async (req: Request, res: Response) => {
   const validatedData = UserRegisterationSchema.safeParse(req.body);
@@ -32,10 +32,9 @@ export const register = async (req: Request, res: Response) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = { id: "1", username, passwordHash };
+  const user = { id: "2", username, passwordHash };
 
-  const { accessToken, refreshToken } = generateTokens(user.id);
-  refreshTokens.push(refreshToken);
+  const { accessToken, refreshToken } = await generateTokens(user.id);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -48,6 +47,10 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
+  const validatedData = UserLoginSchema.safeParse(req.body);
+  if (!validatedData.success) {
+    return res.status(400).json({ error: validatedData.error.message });
+  }
   const { username, password } = req.body;
   const user = users.find((user) => user.username === username);
   if (!user) {
@@ -59,8 +62,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Invalid username or password" });
   }
 
-  const { accessToken, refreshToken } = generateTokens(user.id);
-  refreshTokens.push(refreshToken);
+  const { accessToken, refreshToken } = await generateTokens(user.id);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -76,14 +78,29 @@ export const logout = async (req: Request, res: Response) => {
   if (!refreshToken) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 0,
-  });
-  res.json({ message: "Logged out successfully" });
+  try {
+    // Decode without verifying expiration (they might be logging out an expired token)
+    const decoded = jwt.decode(refreshToken);
+    if (
+      decoded &&
+      typeof decoded === "object" &&
+      "userId" in decoded &&
+      "jti" in decoded
+    ) {
+      const { userId, jti } = decoded as { userId: string; jti: string };
+      const redisKey = `auth:refresh:${userId}:${jti}`;
+      await redisClient.del(redisKey);
+    }
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 0,
+    });
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    return res.status(403).json({ error: "Invalid refresh token" });
+  }
 };
 
 export const refresh = async (req: Request, res: Response) => {
@@ -92,22 +109,28 @@ export const refresh = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const isRefreshTokenValid = refreshTokens.includes(refreshToken);
-  if (!isRefreshTokenValid) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  try {
+    const decoded = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET);
+    if (typeof decoded === "string") {
+      return res.status(403).json({ error: "Invalid refresh token" });
+    }
+    const { userId, jti } = decoded;
 
-  const decoded = verifyAccessToken(refreshToken);
-  if (typeof decoded === "string") {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+    const redisKey = `auth:refresh:${userId}:${jti}`;
+    const tokenExists = await redisClient.exists(redisKey);
 
-  const userId = decoded.userId;
-  const user = users.find((user) => user.id === userId);
-  if (!user) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+    if (!tokenExists) {
+      return res
+        .status(403)
+        .json({ error: "Refresh token is invalid or has been revoked" });
+    }
 
-  const newAccessToken = generateAccessToken(user.id);
-  res.json({ accessToken: newAccessToken });
+    const newAccessToken = generateAccessToken(userId);
+
+    res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    return res
+      .status(403)
+      .json({ error: "Refresh token is invalid or has been revoked" });
+  }
 };
