@@ -20,11 +20,7 @@ const users: UserDBType[] = [
 ];
 
 export const register = async (req: Request, res: Response) => {
-  const validatedData = UserRegisterationSchema.safeParse(req.body);
-  if (!validatedData.success) {
-    return res.status(400).json({ error: validatedData.error.message });
-  }
-  const { username, password, name } = validatedData.data;
+  const { username, password, name } = req.body;
 
   const existingUser = users.find((user) => user.username === username);
   if (existingUser) {
@@ -47,10 +43,6 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const validatedData = UserLoginSchema.safeParse(req.body);
-  if (!validatedData.success) {
-    return res.status(400).json({ error: validatedData.error.message });
-  }
   const { username, password } = req.body;
   const user = users.find((user) => user.username === username);
   if (!user) {
