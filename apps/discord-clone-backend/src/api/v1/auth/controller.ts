@@ -13,22 +13,28 @@ import {
 } from "../../../services/AuthService.js";
 import redisClient from "../../../config/redis.js";
 import { env } from "../../../config/env.js";
+import { Snowflake } from "../../../utils/snowflake.js";
+import { usersTable } from "../../../db/postgres/schema.js";
+import { db } from "../../../db/postgres/index.js";
+import { eq } from "drizzle-orm";
 
-// --- Mock Data ---
-const users: UserDBType[] = [
-  { id: "1", username: "testuser", passwordHash: "password123" },
-];
+const snowflake = new Snowflake();
 
 export const register = async (req: Request, res: Response) => {
-  const { username, password, name } = req.body;
+  const { username, password, email } = req.body;
 
-  const existingUser = users.find((user) => user.username === username);
+  const existingUser = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.username, username))
+    .limit(1);
   if (existingUser) {
     return res.status(400).json({ error: "Username already exists" });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = { id: "2", username, passwordHash };
+  const userId = snowflake.generateId();
+  const user = { id: userId, username, passwordHash };
 
   const { accessToken, refreshToken } = await generateTokens(user.id);
 
@@ -38,13 +44,25 @@ export const register = async (req: Request, res: Response) => {
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
-  users.push(user);
+  await db.insert(usersTable).values({
+    id: BigInt("0b" + userId),
+    username,
+    email,
+    passwordHash,
+    avatarUrl: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
   res.json({ accessToken });
 };
 
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
-  const user = users.find((user) => user.username === username);
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.username, username))
+    .limit(1);
   if (!user) {
     return res.status(401).json({ error: "Invalid username or password" });
   }
@@ -54,7 +72,9 @@ export const login = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Invalid username or password" });
   }
 
-  const { accessToken, refreshToken } = await generateTokens(user.id);
+  const { accessToken, refreshToken } = await generateTokens(
+    user.id.toString(),
+  );
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
