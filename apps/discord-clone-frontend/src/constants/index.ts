@@ -24,8 +24,7 @@ export const roles: RoleInterface[] = [
     color: "green",
     serverId: 1,
   },
-]
-
+];
 
 export const users: UserInterface[] = [
   {
@@ -45,7 +44,7 @@ export const users: UserInterface[] = [
     username: "Member",
     avatar: "null",
     roles: [roles[2]],
-  }
+  },
 ];
 
 export const servers: ServerDetails[] = [
@@ -152,53 +151,4 @@ export const servers: ServerDetails[] = [
   },
 ];
 
-export const Chats: ChatInterface[] = [
-  {
-    channelId: 1,
-    authorId: 1,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-  {
-    channelId: 1,
-    authorId: 2,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-  {
-    channelId: 1,
-    authorId: 3,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-  {
-    channelId: 1,
-    authorId: 4,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-  {
-    channelId: 1,
-    authorId: 5,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-  {
-    channelId: 1,
-    authorId: 6,
-    content: "Hello World",
-    createdAt: 1669888888,
-    readBy: [1, 2, 3],
-    type: "text",
-  },
-];
+export const Chats: ChatInterface[] = [];
