@@ -1,10 +1,62 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserLoginSchema, UserLoginType } from "@discord-clone/shared-types";
+import { useAppDispatch } from "@/redux/hooks";
+import { setCredentials } from "@/redux/slices/authSlice";
+import FormLabelInput from "@/components/shared/form/FormLabelInput";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search) => ({
+    redirect: (search.redirect as string) || "/",
+  }),
+  beforeLoad: ({ context, search }) => {
+    // Redirect if already authenticated
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: search.redirect });
+    }
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const { redirect } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const dispatch = useAppDispatch();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<UserLoginType>({
+    resolver: zodResolver(UserLoginSchema),
+  });
+  const onSubmit = async (data: UserLoginType) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const responseJson = await response.json();
+      if (!response.ok) {
+        throw new Error(responseJson.error);
+      }
+      const { accessToken } = responseJson;
+      dispatch(setCredentials({ accessToken }));
+      navigate({ to: redirect, search: { redirect } });
+    } catch (error) {
+      console.error(error);
+      setError("root", {
+        message: (error as Error).message || "Failed to login",
+      });
+    }
+  };
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="bg-zinc-800 w-[40rem] rounded-xl p-10">
@@ -15,31 +67,39 @@ function RouteComponent() {
           </p>
         </div>
         <div>
-          <form className="flex flex-col gap-6 ">
-            <div className="flex flex-col gap-2">
-              <label className="text-white font-normal text-lg">Username</label>
-              <input
-                type="text"
-                className="bg-zinc-900 rounded-md p-2 font-normal text-lg"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-white font-normal text-lg">Password</label>
-              <input
-                type="password"
-                className="bg-zinc-900 rounded-md p-2 font-normal text-lg"
-              />
-            </div>
+          <form
+            className="flex flex-col gap-6 "
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <FormLabelInput
+              label="Username"
+              type="text"
+              name="username"
+              register={register}
+              errors={errors}
+            />
+            <FormLabelInput
+              label="Password"
+              type="password"
+              name="password"
+              register={register}
+              errors={errors}
+            />
             <button
               type="submit"
               className="bg-blue-500 rounded-md p-2 font-medium text-xl hover:bg-blue-600 transition-colors"
+              disabled={isSubmitting}
             >
               Login
             </button>
           </form>
           <p className="text-zinc-200 text-sm my-2">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-300 hover:text-blue-600">
+            <Link
+              to="/register"
+              search={{ redirect }}
+              className="text-blue-300 hover:text-blue-600"
+            >
               Register
             </Link>
           </p>

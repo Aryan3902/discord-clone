@@ -116,7 +116,11 @@ function RouteComponent() {
           </form>
           <p className="text-zinc-200 text-sm my-2">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-300 hover:text-blue-600">
+            <Link
+              to="/login"
+              search={{ redirect }}
+              className="text-blue-300 hover:text-blue-600"
+            >
               Login
             </Link>
           </p>
