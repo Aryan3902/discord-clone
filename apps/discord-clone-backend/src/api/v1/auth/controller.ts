@@ -1,12 +1,6 @@
-// src/controllers/authController.ts
 import { type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {
-  UserLoginSchema,
-  UserRegisterationSchema,
-  type UserDBType,
-} from "@discord-clone/shared-types";
 import {
   generateAccessToken,
   generateTokens,
@@ -16,25 +10,30 @@ import { env } from "../../../config/env.js";
 import { Snowflake } from "../../../utils/snowflake.js";
 import { usersTable } from "../../../db/postgres/schema.js";
 import { db } from "../../../db/postgres/index.js";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 
 const snowflake = new Snowflake();
 
 export const register = async (req: Request, res: Response) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, name } = req.body;
 
-  const existingUser = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.username, username))
-    .limit(1);
-  if (existingUser) {
-    return res.status(400).json({ error: "Username already exists" });
+  try {
+    const existingUser = await db
+      .select()
+      .from(usersTable)
+      .where(or(eq(usersTable.username, username), eq(usersTable.email, email)))
+      .limit(1);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
   const userId = snowflake.generateId();
-  const user = { id: userId, username, passwordHash };
+  const user = { id: userId, username, passwordHash, name };
 
   const { accessToken, refreshToken } = await generateTokens(user.id);
 
@@ -44,15 +43,20 @@ export const register = async (req: Request, res: Response) => {
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
-  await db.insert(usersTable).values({
-    id: BigInt("0b" + userId),
-    username,
-    email,
-    passwordHash,
-    avatarUrl: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+  try {
+    await db.insert(usersTable).values({
+      id: BigInt("0b" + userId),
+      name,
+      username,
+      email,
+      passwordHash,
+      avatarUrl: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Failed to create user" });
+  }
   res.json({ accessToken });
 };
 

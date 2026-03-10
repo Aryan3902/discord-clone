@@ -14,11 +14,11 @@ export const validateBody = (schema: z.ZodTypeAny): RequestHandler => {
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
-          message: "Validation failed",
+          error: "Validation failed",
           errors: error.errors,
         });
       }
-      res.status(500).send("Internal Server Error");
+      res.status(500).json({ error: "Internal Server Error" });
     }
   };
 };
