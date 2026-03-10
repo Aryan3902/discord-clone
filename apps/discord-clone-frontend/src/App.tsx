@@ -46,9 +46,6 @@ function App() {
         } else {
           dispatch(logout());
         }
-
-        const data = await response.json();
-        dispatch(setCredentials({ accessToken: data.accessToken }));
       } catch {
         dispatch(logout());
       }
