@@ -16,6 +16,7 @@ const timestampColumns = {
   updatedAt: timestamp(),
 };
 
+// "mode: number" will crash!
 const idColumn = bigint({ mode: "bigint" }).primaryKey();
 
 // Users

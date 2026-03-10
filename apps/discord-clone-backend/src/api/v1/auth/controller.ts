@@ -37,6 +37,11 @@ export const register = async (req: Request, res: Response) => {
 
   const { accessToken, refreshToken } = await generateTokens(user.id);
 
+  /**
+   Stored in an HttpOnly, Secure, SameSite=Strict cookie by the backend. 
+   The frontend JavaScript cannot read this cookie, making it immune to XSS.
+   The browser automatically attaches it when you call the /api/v1/auth/refresh endpoint.
+   */
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -57,6 +62,10 @@ export const register = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({ error: "Failed to create user" });
   }
+  /**
+   * Stored purely in memory (Redux State). It is attached to API requests via the Authorization header.
+   * This means that the token is not stored on the client side, and is not vulnerable to XSS attacks.
+   */
   res.json({ accessToken });
 };
 
@@ -135,12 +144,14 @@ export const refresh = async (req: Request, res: Response) => {
     const redisKey = `auth:refresh:${userId}:${jti}`;
     const tokenExists = await redisClient.exists(redisKey);
 
+    // Token does not exist in Redis, so it has been revoked or expired.
     if (!tokenExists) {
       return res
         .status(403)
         .json({ error: "Refresh token is invalid or has been revoked" });
     }
 
+    // Token exists in Redis, so it is valid. Generate a new access token.
     const newAccessToken = generateAccessToken(userId);
 
     res.json({ accessToken: newAccessToken });

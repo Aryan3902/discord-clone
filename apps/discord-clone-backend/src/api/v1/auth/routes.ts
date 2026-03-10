@@ -8,6 +8,7 @@ import {
 
 const router: Router = Router();
 
+// Middleware: Validate the body of the request
 router.post("/register", validateBody(UserRegisterationSchema), register);
 router.post("/login", validateBody(UserLoginSchema), login);
 router.post("/logout", logout);
