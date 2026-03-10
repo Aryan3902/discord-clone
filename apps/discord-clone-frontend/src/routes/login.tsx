@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserLoginSchema, UserLoginType } from "@discord-clone/shared-types";
@@ -21,7 +26,7 @@ export const Route = createFileRoute("/login")({
 
 function RouteComponent() {
   const { redirect } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const {
     register,
@@ -49,7 +54,7 @@ function RouteComponent() {
       }
       const { accessToken } = responseJson;
       dispatch(setCredentials({ accessToken }));
-      navigate({ to: redirect, search: { redirect } });
+      router.navigate({ to: redirect });
     } catch (error) {
       console.error(error);
       setError("root", {

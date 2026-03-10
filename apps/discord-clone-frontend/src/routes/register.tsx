@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,8 +29,8 @@ export const Route = createFileRoute("/register")({
 
 function RouteComponent() {
   const { redirect } = Route.useSearch();
-  const navigate = Route.useNavigate();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -52,7 +57,7 @@ function RouteComponent() {
       }
       const { accessToken } = responseJson;
       dispatch(setCredentials({ accessToken }));
-      navigate({ to: redirect, search: { redirect: "/" } });
+      router.navigate({ to: redirect });
     } catch (error) {
       console.error(error);
       setError("root", {
