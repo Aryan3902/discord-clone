@@ -6,6 +6,7 @@ import { RootState } from "./redux/store";
 import { routeTree } from "./routeTree.gen";
 import { logout, setCredentials } from "./redux/slices/authSlice";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createRouter({
   routeTree,
@@ -18,6 +19,8 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+const queryClient = new QueryClient();
 
 function App() {
   const dispatch = useAppDispatch();
@@ -81,7 +84,9 @@ function App() {
     //   )}
     //   {error && <div>Error: {error}</div>}
     // </main>
-    <RouterProvider router={router} context={{ auth: { isAuthenticated } }} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} context={{ auth: { isAuthenticated } }} />
+    </QueryClientProvider>
   );
 }
 
