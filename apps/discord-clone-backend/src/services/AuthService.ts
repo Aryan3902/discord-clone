@@ -26,6 +26,9 @@ export const generateTokens = async (userId: string) => {
     expiresIn: "7d",
   });
 
+  // Delete the old refresh token
+  await redisClient.del(`auth:refresh:${userId}:*`);
+
   const redisKey = `auth:refresh:${userId}:${jti}`;
   await redisClient.setEx(redisKey, 7 * 24 * 60 * 60, refreshToken);
 
