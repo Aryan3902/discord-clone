@@ -1,21 +1,17 @@
-
 import { Chats } from "@/constants";
 import { ChatInterface } from "@/types/chat";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import ChatList from "./ChatList";
 import MessageInput from "./MessageInputBar/MessageInput";
-import { selectSelectedChannelId } from "@/redux/selectors";
 
-const Chat = () => {
-  const currSelectedChannel = useSelector(selectSelectedChannelId);
+const Chat = ({ currSelectedChannel }: { currSelectedChannel: string }) => {
   const [messages, setMessages] = useState<ChatInterface[]>([]);
 
   useEffect(() => {
     async function fetchMessages() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const fetchedMessages = Chats.filter(
-        (message) => message.channelId === currSelectedChannel
+        (message) => message.channelId === currSelectedChannel,
       );
       setMessages(fetchedMessages);
     }

@@ -1,6 +1,8 @@
+import { UserInterface } from "./user";
+
 export interface ChatInterface {
   channelId: string;
-  authorId: string;
+  author: UserInterface;
   content: string;
   createdAt: number;
   readBy: number[];
